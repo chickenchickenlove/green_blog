@@ -39,10 +39,9 @@ async def get_post_data(session: aiohttp.ClientSession,
     futures = [session.request(
         method='get',
         url=URL_WITH_PAGE.format(page_number)) for page_number in range(start_page, start_page + 5)]
-    responses = [await f for f in futures]
 
-    for res in responses:
-        do_continue = await parse_data(history_dict, res)
+    for response in [await f for f in futures]:
+        do_continue = await parse_data(history_dict, response)
 
     if do_continue:
         await get_post_data(session, history_dict, start_page + 5)
@@ -60,4 +59,4 @@ async def do_request() -> defaultdict:
 
 
 # post_history = asyncio.run(do_request())
-
+# print(post_history)
