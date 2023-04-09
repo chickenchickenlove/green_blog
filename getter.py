@@ -2,6 +2,7 @@ import json
 import asyncio
 import aiohttp
 import dateparser
+import my_constant
 
 from collections import defaultdict
 from secret import ACCESS_TOKEN, BLOG_NAME, OUTPUT
@@ -24,10 +25,8 @@ async def parse_data(history_dict: defaultdict,
         return False
 
     for post in items['posts']:
-        parsed_date = dateparser.parse(post['date'])
-        isoweekday = parsed_date.isoweekday()
-
-        history_dict[parsed_date.date()] += 1
+        parsed_date = dateparser.parse(post['date']).date().strftime(my_constant.DATE_FORMAT)
+        history_dict[parsed_date] += 1
     return True
 
 
