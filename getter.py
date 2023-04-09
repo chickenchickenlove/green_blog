@@ -1,5 +1,4 @@
 import json
-import asyncio
 import aiohttp
 import dateparser
 import my_constant
@@ -53,9 +52,3 @@ async def do_request() -> defaultdict:
         await get_post_data(session, history_dict, 1)
 
     return history_dict
-
-
-
-
-# post_history = asyncio.run(do_request())
-# print(post_history)
