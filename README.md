@@ -6,7 +6,6 @@
 ### 양식
 - 아래 양식이 앞으로 README에 표시되 게 될 거에요. 
 
-
 <div>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="350" height="170" viewBox="0 0 350 170">
   <style type="text/css">
@@ -168,3 +167,6 @@
   </g>
 </svg>
 </div>
+
+
+![img.png](img.png)
