@@ -7,6 +7,7 @@
 - 아래 양식이 앞으로 README에 표시되 게 될 거에요. 
 
 
+<div>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="350" height="170" viewBox="0 0 350 170">
   <style type="text/css">
       <![CDATA[
@@ -166,3 +167,4 @@
       <rect class="zandi" width="15" height="15" rx="4"transform="translate(329 44)" fill="#D9FDCE"style="animation-delay:1004ms"/>
   </g>
 </svg>
+</div>
