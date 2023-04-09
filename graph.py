@@ -68,7 +68,7 @@ def get_svg(max_count: int,
     return svg
 
 
-def get_position(idx: int, color: str):
+def get_position(idx: int, color: str) -> dict:
     return {
         'x': 23 + (idx // 7) * 17,
         'y': 44 + (idx % 7) * 16,
@@ -83,7 +83,7 @@ def get_nemo_svg_list(nemo_list: list,
                       now_in_loop: str,
                       max_count: int,
                       idx: int,
-                      end: str):
+                      end: str) -> list:
     if end == now_in_loop:
         return nemo_list
 
