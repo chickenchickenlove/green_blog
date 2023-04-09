@@ -64,10 +64,7 @@ def get_svg(max_count: int,
     # Complete Nemo
     nemo_svg = ''.join(nemo_list)
     svg = ''.join([svg, nemo_svg])
-    svg += """
-          </g>
-      </svg>
-      """
+    svg += my_constant.END_FORMAT
     return svg
 
 
