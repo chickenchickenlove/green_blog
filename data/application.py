@@ -15,13 +15,13 @@ class Component:
         self.instance = None
         self.callback = callback
 
-    def dependency_injection(self):
+    def commit_injection(self):
         # should inject dependencies.
         # get instance() -> + setter(). consider di() for common.
         self.finished = True
 
-    def init_instance(self, config: dict[str, str]):
-        self.instance = self.callback(config)
+    def init_instance(self):
+        self.instance = self.callback()
 
     def get_instance(self):
         if self.instance is None:
@@ -35,13 +35,19 @@ class Component:
 class ContextManager:
 
     components: Dict[str, Component]
+    instance = None
 
     @classmethod
     def create(cls):
-        self = cls()
+        if ContextManager.instance is not None:
+            return ContextManager.instance
+        self = cls.__new__(ContextManager)
         self.components = {}
 
         return self
+
+    def __init__(self):
+        raise RuntimeError('not implemented. please you create() instead.')
 
     def add_component(self, com: Component) -> None:
         name = com.name
@@ -51,9 +57,9 @@ class ContextManager:
         logging.info(f'Component {name} are registered successfully.')
         print(f'Component {name} are registered successfully.')
 
-    def init_components(self, config):
+    def init_components(self):
         for name, com in self.components.items():
-            com.init_instance(config.get(name))
+            com.init_instance()
 
     def inject(self):
         logging.info('start to dependency injection.')
@@ -73,16 +79,24 @@ class ContextManager:
             new_value = self.components.get(k)
             self.__setattr__(k, new_value)
 
+        ret = True
+        for v in com.get_instance().__dict__.values():
+            ret = ret and v is not None
+
+        if ret:
+            com.commit_injection()
+
     def __valid_injection(self):
-        ret = False
+        ret = True
         for com in self.components.values():
             ret = ret and com.is_injection_completed()
         if not ret:
             raise RuntimeError('There is something wrong for dependency injection on ContextManager.')
 
 
-
 CONTEXT_MANAGER = ContextManager.create()
+
+
 def component(f):
     com = Component(f.__name__, f)
     CONTEXT_MANAGER.add_component(com)
@@ -91,8 +105,8 @@ def component(f):
 
 ''' Example
 @component
-def a(config):
-    instance = Hello(config)
+def a():
+    instance = Hello()
     return instance
     
 
