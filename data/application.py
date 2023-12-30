@@ -1,36 +1,101 @@
-import functools
-
-
-class App:
-
-    def __init__(self):
-        self.catalog = {}
-
-    def component(self, f):
-        name = f.__name__
-        if name in self.catalog.keys():
-            raise RuntimeError('Already Existed.')
+import logging
+from typing import Dict, Type, Callable
 
 
 class Component:
 
-    def __init__(self):
-        self._finished = False
-        self._instance = 1
-        pass
+    instance: Type[object]
+    name: str
+    finished: bool
+    callback: Callable
 
-    def register(self, f):
-        self.f = f
-        print('here')
+    def __init__(self, name, callback):
+        self.finished = False
+        self.name = name
+        self.instance = None
+        self.callback = callback
 
     def dependency_injection(self):
-        self._finished = True
+        # should inject dependencies.
+        # get instance() -> + setter(). consider di() for common.
+        self.finished = True
 
-    @property
-    def finished(self):
-        return self._finished
+    def init_instance(self, config: dict[str, str]):
+        self.instance = self.callback(config)
 
-    @property
-    def instance(self):
-        return self._instance
+    def get_instance(self):
+        if self.instance is None:
+            raise RuntimeError('Not Initialized.')
+        return self.instance
 
+    def is_injection_completed(self):
+        return self.finished
+
+
+class ContextManager:
+
+    components: Dict[str, Component]
+
+    @classmethod
+    def create(cls):
+        self = cls()
+        self.components = {}
+
+        return self
+
+    def add_component(self, com: Component) -> None:
+        name = com.name
+        if name in self.components.keys():
+            raise RuntimeError('Already Registered. please check your config.')
+        self.components[com.name] = com
+        logging.info(f'Component {name} are registered successfully.')
+        print(f'Component {name} are registered successfully.')
+
+    def init_components(self, config):
+        for name, com in self.components.items():
+            com.init_instance(config.get(name))
+
+    def inject(self):
+        logging.info('start to dependency injection.')
+        for name, com in self.components.items():
+            self.__inject_each(com)
+
+        self.__valid_injection()
+
+        logging.info('dependency injection are completed successfully.')
+        print('dependency injection are completed successfully.')
+
+    def __inject_each(self, com):
+        for k, v in com.get_instance().__dict__.items():
+            if v is not None:
+                continue
+
+            new_value = self.components.get(k)
+            self.__setattr__(k, new_value)
+
+    def __valid_injection(self):
+        ret = False
+        for com in self.components.values():
+            ret = ret and com.is_injection_completed()
+        if not ret:
+            raise RuntimeError('There is something wrong for dependency injection on ContextManager.')
+
+
+
+CONTEXT_MANAGER = ContextManager.create()
+def component(f):
+    com = Component(f.__name__, f)
+    CONTEXT_MANAGER.add_component(com)
+    return f
+
+
+''' Example
+@component
+def a(config):
+    instance = Hello(config)
+    return instance
+    
+
+CONTEXT_MANAGER.init_components({})
+CONTEXT_MANAGER.inject()
+'''
