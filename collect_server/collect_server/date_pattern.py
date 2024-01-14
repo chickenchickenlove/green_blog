@@ -1,9 +1,6 @@
 import re
 import aiohttp
 
-# pattern1 = r'\d{4}\.\d{2}\.\d{2}'  # 2023.01.06
-# pattern2 = r'\d{4}\. \d{1,2}\. \d{1,2}'  # 2023. 1. 6, 2023. 10. 19
-
 PATTERNS = [
     r'\d{4}\.\d{2}\.\d{2}', # 2023.01.06
     r'\d{4}\. \d{1,2}\. \d{1,2}', # 2023. 1. 6, 2023. 10. 19
@@ -70,6 +67,6 @@ class PatternParseChain:
 
 
 class NoMatchedPattern(Exception):
-    def __init__(self, message="My custom error has occurred"):
+    def __init__(self, message='Error occurs'):
         self.message = message
         super().__init__(self.message)
