@@ -16,11 +16,11 @@ class GrassGetter:
         return self
 
     async def execute(self, url: str) -> list:
-        async with aiohttp.ClientSession() as s:
-            return await self._pages(s, 1, 10, url)
+        async with aiohttp.ClientSession() as session:
+            return await self._pages(session, start_page=1, interval=10, url=url)
 
     async def _pages(self,
-                     session,
+                     session, *,
                      start_page: int,
                      interval: int,
                      url: str):
