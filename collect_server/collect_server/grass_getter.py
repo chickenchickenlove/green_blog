@@ -24,15 +24,13 @@ class GrassGetter:
                      start_page: int,
                      interval: int,
                      url: str):
-
-        ret = []
+        # TODO : Use Async Generator
+        # 제네레이터 이용하도록 리팩토링
         for s in range(start_page, 1000, interval):
             result = await self._page(session, s, interval, url)
-            filtered = self.filter_chain.apply(result)
-            if not filtered:
+            if filtered := self.filter_chain.apply(result):
                 break
-            ret.extend(filtered)
-        return ret
+            yield filtered
 
     async def _page(self,
                     s: aiohttp.ClientSession,
