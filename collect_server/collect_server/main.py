@@ -1,3 +1,4 @@
+import aiohttp
 from fastapi import FastAPI
 
 import uvicorn
@@ -10,6 +11,8 @@ DOMAINS = {
     'tistory': 'tistory.com'
 }
 
+# TODO: AsyncGenerator 사용 시, 너무 느림. 아마 ClientSession 쪽의 I/O 문제인 듯.
+# I/O는 가급적이면 제네레이터 안 쓰는 방향으로?
 
 async def execute(url, /, short=None):
     pattern = await DatePatternFactory.create(url)
@@ -19,9 +22,16 @@ async def execute(url, /, short=None):
         filters.add_filter(ExpiredDateFilter(pattern))
     filters.add_filter(DatePatternFilter(pattern))
 
-    result = await GrassGetter.create(filters).execute(url)
+    async with aiohttp.ClientSession() as s:
+        generator = await GrassGetter.create(filters, s).execute(url)
 
-    return ResponseParser(pattern).aggregate_count(result)
+        # TODO: Use http2 Stream if needed.
+        parser = ResponseParser(pattern, generator)
+        result = await parser.aggregate_count()
+    print(result)
+    print(sum(result.values()))
+
+    return result
 
 
 app = FastAPI()
@@ -35,7 +45,7 @@ async def read_items(name, domain):
     result = await execute(url, short=True)
     return {"result": result}
 
-
+# curl "localhost:8000/blog/total?name=ojt90902&domain=tistory"
 @app.get("/blog/total")
 async def read_items(name, domain):
     url = f'https://{name}.{DOMAINS.get(domain)}'
